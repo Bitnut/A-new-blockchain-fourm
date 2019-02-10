@@ -1,4 +1,4 @@
-// 分离出来的单独配置文件，复用于开发、生产环境
+// webpack 的基本配置文件，由作者创建，TODO 学习webpack！
 
 const path = require('path');
 const webpack = require('webpack');

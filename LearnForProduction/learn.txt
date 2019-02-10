@@ -1,0 +1,576 @@
+# condenser 的学习日志
+
+---------------------------------------------------------------------
+190120
+---------------------------------------------------------------------
+
+从脚本开始学习搭建。
+
+基本命令
+--------
+
+- yarn install --frozen-lockfile 
+
+如果需要更新，不要生成yarn.lock锁定文件并失败。
+
+
+
+- yarn add 和 yarn add --dev
+
+类似的命令是：
+npm install --save 或 --save-dev
+
+npm install -save moduleName 命令
+1. 安装模块到项目node_modules目录下。
+2. 会将模块依赖写入dependencies 节点。
+3. 运行 npm install 初始化项目时，会将模块下载到项目目录下。
+4. 运行npm install --production或者注明NODE_ENV变量值为production时，会自动下载模块到node_modules目录中。
+
+npm install -save-dev moduleName 命令
+1. 安装模块到项目node_modules目录下。
+2. 会将模块依赖写入devDependencies 节点。
+3. 运行 npm install 初始化项目时，会将模块下载到项目目录下。
+4. 运行npm install --production或者注明NODE_ENV变量值为production时，不会自动下载模块到node_modules目录中。
+
+总结
+devDependencies 节点下的模块是我们在开发时需要用的，比如项目中使用的 gulp ，压缩css、js的模块。这些模块在我们的项目
+部署后是不需要的，所以我们可以使用 -save-dev 的形式安装。像 express 这些模块是项目运行必备的，应该安装在 dependencies 
+节点下，所以我们应该使用 -save 的形式安装。
+
+一般而言，yarn 的话直接用 --add 就好了～，npm 也直接用 --save 就好。
+
+
+
+- NODE_ENV=production & NODE_ENV=development
+
+注明脚本的环境变量
+
+
+
+- yarn run ×
+
+用来执行在 package.json 中 scripts 属性下定义的脚本
+例子：
+
+ // package.json
+    {
+        "scripts": {
+            "dev": "node app.js",
+            "start": "node app.js"
+        }
+    }
+
+运行 yarn run dev  则 yarn 执行 dev 对应的脚本 node app.js
+
+condenser 使用 yarn run production 跑部署模式，使用 yarn run start 跑开发模式。
+
+
+--dev-server.js 学习
+
+- 后端框架：
+
+使用 yield 和 this.req 等语句， 明显是 Koa1
+
+
+
+-前后端分离中，开发和部署的过程中会有对后端接口的域名的切换问题
+
+首先是配置文件里的process.env，condenser 中的例子：
+
+process.env.BABEL_ENV = 'browser';
+process.env.NODE_ENV = 'development';
+
+env属性，在 development和production不同环境上，配置会有些不同。
+
+文档：http://nodejs.cn/api/process....
+官方解释：process 对象是一个 global （全局变量），提供有关信息，控制当前 Node.js 进程。
+作为一个对象，它对于 Node.js 应用程序始终是可用的，故无需使用 require()。
+
+process 其实就是存在nodejs中的一个全局变量。
+
+process.env     官方: process.env属性返回一个包含用户环境信息的对象。
+
+很明显的一个使用场景，依靠这个我们就可以给服务器上打上一个标签。这样的话，我们就能根据不同的环境，
+做一些配置上的处理。比如开启 sourceMap，后端接口的域名切换等等。
+
+你是 dev 环境
+他是 uat 环境          //UAT，英文User Acceptance Test的简写 也就是用户验收测试
+她是 product 环境
+
+
+
+
+
+---------------------------------------------------------------------
+190124
+---------------------------------------------------------------------
+
+reactjs 入门
+
+基本概念
+--------
+
+JavaScript 模組化開發
+--------
+-主要是对于包、函数、库的管理和开发
+隨著網站開發的複雜度提昇，許多現代化的網站已不是單純的網站而已，更像是個富有互動性的網頁應用程式（Web App）。
+使用模组化开发是為了應付現代化網頁應用程式開發的需求，解決一些像是全域變數污染、低維護性等問題，JavaScript 
+在模組化上也有長足的發展。
+
+
+-一些社区定义的規範和實踐：
+1. CDN-Based
+
+也就是最傳統的 <script> 引入方式，然而使用這種方式雖然簡單方便，但在開發實際中大型應用程式時會產生許多弊端：
+
+全域作用域容易造成變數污染和衝突
+文件只能依照 <script> 順序載入，不具彈性
+在大型專案中各種資源和版本難以維護
+必須由開發者自行判斷模組和函式庫之間的依賴關係
+
+2. AMD
+
+Asynchronous Module Definition 簡稱 AMD，為非同步載入模組的規範，其在宣告時模組時即需定義依賴的模組。
+AMD 常用於瀏覽器端，其最著名的實踐為 RequireJS
+
+基本格式：
+define(id?, dependencies?, factory);
+
+3. CommonJS
+
+CommonJS 規範是一種同步模組載入的規範。以 Node.js 其遵守 CommonJS 規範，使用 require 進行模組同步載入，
+並透過 exports、module.exports 來輸出模組。主要實現為 Node.js 伺服器端的同步載入和瀏覽器端的 Browserify。
+
+4. CMD
+
+CMD 全稱為 Common Module Definition，其規範和 AMD 類似，但相對簡潔，卻又保持和 CommonJS 的兼容性。
+其最大特色為：依賴就近，延遲執行。主要實現為：Sea.js。
+
+5. UMD
+
+Universal Module Definition 是為了要兼容 CommonJS 和 AMD 所設計的規範，希望讓模組能跨平台執行。
+
+6. ES6 Module
+
+ECMAScript6 的標準中定義了 JavaScript 的模組化方式，讓 JavaScript 在開發大型複雜應用程式時上更為方便且易於管理，
+亦可以取代過去 AMD、CommonJS 等規範，成為通用於瀏覽器端和伺服器端的模組化解決方案。但目前瀏覽器和 Node 在 ES6 模組支援度還不完整，
+大部分情況需要透過 Babel 轉譯器進行轉譯。
+
+
+模組化開發工具
+--------
+- Webpack 和 Browserify + Gulp 則是進行 React 應用程式開發常用的開發工具，可以協助進行自動化程式碼打包、轉譯等重複性工作，提昇開發效率。
+主要使用 Webpack 開發。
+
+- Webpack
+
+Webpack 是一個模組打包工具（module bundler），以下列出 Webpack 的幾項主要功能：
+
+將 CSS、圖片與其他資源打包
+打包之前預處理（Less、CoffeeScript、JSX、ES6 等）的檔案
+依 entry 文件不同，把 .js 分拆為多個 .js 檔案
+整合豐富的 Loader 可以使用
+（Webpack 本身僅能處理 JavaScript 模組，其餘檔案如：CSS、Image 需要載入不同 Loader 進行處理）
+
+- React 測試
+Facebook 本身有提供 Test Utilities，但由於不夠好用，所以目前主流開發社群比較傾向使用 Airbnb 團隊開發的 enzyme，
+其可以與市面上常見的測試工具（Mocha、Karma、Jest 等）搭配使用。其中 Jest 是 Facebook 所開發的單元測試工具，其主要基於 Jasmine 所建立的測試框架。
+Jest 除了支援 JSDOM 外，也可以自動模擬 (mock) 透過 require() 進來的模組，讓開發者可以更專注在目前被測試的模組中。
+
+
+
+React 開發環境設置與 Webpack 入門教學
+--------
+
+
+
+模组的设计模式演变（封装性）
+--------
+MODULE?
+从设计模式说起！
+
+- 最早，我们这么写代码
+
+function foo(){
+    //...
+}
+function bar(){
+    //...
+}
+[Global 被污染，很容易命名冲突]
+
+
+- 改进，简单封装：Namespace 模式
+
+var MYAPP = {
+    foo: function(){},
+    bar: function(){}
+}
+
+MYAPP.foo();
+[减少 Global 上的变量数目]
+[但是本质还是对象，一点都不安全]
+
+
+- 再改进，匿名闭包 ：IIFE 模式
+
+var Module = (function(){
+    var _private = "safe now";
+    var foo = function(){
+        console.log(_private)
+    }
+
+    return {
+        foo: foo
+    }
+})()
+
+Module.foo();
+Module._private; // undefined
+[函数是 JavaScript 唯一的 Local Scope]
+
+
+- 再增强一点 ：引入依赖
+var Module = (function($){
+    var _$body = $("body");     // we can use jQuery now!
+    var foo = function(){
+        console.log(_$body);    // 特权方法
+    }
+
+    // Revelation Pattern
+    return {
+        foo: foo
+    }
+})(jQuery)
+
+Module.foo();
+[这就是模块模式
+也是现代模块实现的基石]
+
+
+
+加载脚本
+--------
+SCRIPT LOADER
+只有封装性可不够，我们还需要加载
+
+- 设计初衷
+body
+    script(src="jquery.js")
+    script(src="app.js")    // do some $ things...
+
+在这里顺序是必要的
+脚本的加载是同时的
+DOM 顺序即执行顺序
+
+
+- 但现实是这样的…
+
+body
+    script(src="zepto.js")
+    script(src="jhash.js")
+    script(src="fastClick.js")
+    script(src="iScroll.js")
+    script(src="underscore.js")
+    script(src="handlebar.js")
+    script(src="datacenter.js")
+    script(src="deferred.js")
+    script(src="util/wxbridge.js")
+    script(src="util/login.js")
+    script(src="util/base.js")
+    script(src="util/city.js")
+    script(src="util/date.js")
+    script(src="util/cookie.js")
+    script(src="app.js")
+
+- 几个问题
+
+× 难以维护 Very difficult to maintain!
+
+× 依赖模糊 Unclear Dependencies
+
+× 请求过多 Too much HTTP calls
+
+-LABjs - Script Loader(2009)
+
+这个工具是用来加载JavaScript文件的类库，LABjs是Loading And Blocking JavaScript的缩写，顾名思义，加载和阻塞JavaScript。
+
+作用：动态并行加载脚本文件 以及 管理加载脚本文件的执行顺序
+
+- 如何使用 LABjs？
+/**
+*传统的JS加载方式
+**/
+<script src="framework.js"></script>
+<script src="plugin.framework.js"></script>
+<script src="myplugin.framework.js"></script>
+<script src="init.js"></script>
+
+/**
+*采用LABjs加载
+**/
+<script>
+   $LAB
+       .script("framework.js").wait() // empty wait() simply ensures execution order be preserved for this script
+       .script("plugin.framework.js") 
+       .script("myplugin.framework.js").wait()
+       .script("init.js").wait();
+</script>
+
+例子1：
+$LAB
+.script("script1.js").wait() // empty wait() simply ensures execution order be preserved for this script
+.script("script2.js") // both script2 and script3 depend on script1 being executed before
+.script("script3.js").wait() // but are not dependent on each other and can execute in any order
+.script("script4.js") // depends on script1, script2 and script3 being loaded before
+.wait(function(){script4Func();});
+
+
+例子2：
+$LAB
+.script("script1.js") // script1, script2, and script3 do not depend on each other, 
+.script("script2.js") // so execute in any order
+.script("script3.js")
+.wait(function(){  // can still have executable wait(...) functions if you need to
+    alert("Scripts 1-3 are loaded!");
+})
+.script("script4.js") // depends on script1, script2 and script3 being executed before
+.wait(function(){script4Func();});
+
+
+
+
+---------------------------------------------------------------------
+190129
+---------------------------------------------------------------------
+
+学习使用latex
+--------
+-创建文件夹用于构建整个项目
+
+-main.tex 是根文件，用于整合收集所有的章节等信息
+
+-第一步： 修改文件类型
+article 类不适合编写像论文这样的长篇文章，使用 report 类来写论文
+例子：
+\documentclass[12px]{report}  //{}内修改类型，[]内配置字体大小
+
+-第二步，配置文件寻找图片的路径
+graphicx 宏包提供latex中的插图功能
+例子：
+
+
+
+
+带领一个团队
+性格强势、业务熟悉
+人力管理最为重要，技术问题交给技术人员解决，其他剩下的问题可以说全部都是人力管理问题，如何让每个人都有最有效的发挥，让所有人觉得领导很关心大家
+
+做事情的时候总是会有要兑现的压力。要及时兑现！！做了保证就要兑现！
+
+胜利就是靠着名次，不是别的
+
+对所有事情都无所畏惧，这本身就是一个非常危险的事情；是的他们会成为英雄，但是，英雄死的都早
+
+当你发现你没有对手强壮的时候，你必须用你的智慧来打败他
+
+
+
+
+
+
+---------------------------------------------------------------------
+190203
+---------------------------------------------------------------------
+
+研究对象： /webpack 下 dev-server.js dev.config.js base.config.js main.js
+
+
+webpack 加载的 babel-polyfill，-> polifill 名词
+--------
+在查资料时，常常看到polyfill 这个词，不知道其对应的中文术语。查看解释，感觉他就是用来向下兼容浏览器的适配器。以下有一段关于他的解释：
+
+“在JavaScript的世界里,有两个词经常被提到,shim和polyfill.它们指的都是什么,又有什么区别? 一个shim是一个库,它将一个新的API引入到一个旧的环境中,
+而且仅靠旧环境中已有的手段实现 一个polyfill就是一个用在浏览器API上的shim.我们通常的做法是先检查当前浏览器是否支持某个API,如果不支持的话就加载对应的polyfill.
+然后新旧浏览器就都可以使用这个API了.术语polyfill来自于一个家装产品Polyfilla: Polyfilla是一个英国产品,在美国称之为Spackling Paste(译者注:刮墙的,在中国称为腻子).
+记住这一点就行:把旧的浏览器想象成为一面有了裂缝的墙.这些[polyfills]会帮助我们把这面墙的裂缝抹平,还我们一个更好的光滑的墙壁(浏览器) Paul Irish发布过一个Polyfills
+的总结页面“HTML5 Cross Browser Polyfills”.es5-shim是一个shim(而不是polyfill)的例子,它在ECMAScript 3的引擎上实现了ECMAScript 5的新特性,而且在Node.js上和
+在浏览器上有完全相同的表现(译者注:因为它能在Node.js上使用,不光浏览器上,所以它不是polyfill).”
+
+例如，IE浏览器，不支持ES6的promise，就可以在项目中引入Promise 的polyfill：es6-promise
+
+小结:用于适配不同的浏览器
+
+
+configuration：output
+--------
+影响编译输出的选项，output选项告诉 webpack 怎样将文件编译到磁盘中。注意，可能会有多个入口（entry），但是只能指定一个 output
+
+output.filename
+--------
+指定在磁盘中输出的每个文件的名字，不能使用绝对路径！output.path选项决定了文件在磁盘空间中的位置，filename用来为单个文件命名。
+
+
+multiple entries 
+--------
+如果你的配置创建了不止一个“chunk”（多个入口或者使用了像 CommonsChunkPlugin 这样的插件），你应该用下面这些来替代以确保每个文件的名字都是唯一的。 
+[name] is replaced by the name of the chunk. 
+[hash] is replaced by the hash of the compilation. 
+[chunkhash] is replaced by the hash of the chunk.
+
+{
+    entry: {
+        app: './src/app.js',
+        search: './src/search.js'
+    },
+    output: {
+        filename: '[name].js',
+        path: __dirname + '/build'
+    }
+}
+// wirtes to disk: ./build/app.js, ./build/search.js
+
+
+webpack config  module： 加载器
+--------
+加载器用于将资源代码转换成模块。它允许您在导入或“加载”它们时预处理文件。因此，加载器就像处理各种任务的小工具，它提供一个强大的方法来处理前端构建步骤。
+加载器可以把不同类型的文件（比如typescript)转换成javascript 或者把图片处理成内联的数据地址（如base64），加载器甚至可以像导入js模块一样直接导入样式文件。
+
+如果要想在项目中导入样式模块，需要先安装样式的加载器（css-loader)
+例:
+module.exports = {
+  module: {
+    rules: [
+      { test: /\.css$/, use: 'css-loader' }
+    ]
+  }
+};
+
+
+rules 是一个数组，里边可以添加多个加载器（loader).  每一个加载器用对象的方式组织
+
+
+插件 plugins
+--------
+
+插件用于完成一些载器所不能做的事情。
+
+
+plugins 中 resolve 
+--------
+Webpack 在启动后会从配置的入口模块出发找出所有依赖的模块，Resolve 配置 Webpack 
+如何寻找模块所对应的文件。 Webpack 内置 JavaScript 模块化语法解析功能，默认会采用
+模块化标准里约定好的规则去寻找，但你也可以根据自己的需要修改默认的规则。
+
+
+
+
+
+---------------------------------------------------------------------
+190204
+---------------------------------------------------------------------
+
+
+main.js window对象，w是小写
+--------
+在浏览器中，window对象（注意，w为小写）指当前的浏览器窗口。它也是所有对象的顶层对象。
+
+window对象，w是小写
+window对象，是所以对象的顶层对象
+顶层对象：指的是最高一层的对象，所有其他对象都是它的下属。
+JavaScript规定，浏览器环境的所有全局变量，都是window对象的属性。
+
+
+
+child_process.fork()
+--------
+child_process.fork() 是 child_process.spawn() 的一个特殊情况，用于专门衍生新的 Node.js 进程。 
+返回的 ChildProcess 有一个额外的内置通信通道，允许消息在父进程和子进程之间来回传递。 详见 subprocess.send()。
+例子1：
+child_process.fork(modulePath[, args][, options])
+modulePath <string> 在子进程运行的模块。
+args <string[]> 参数列表。
+
+
+reactjs+webpack 项目搭建
+--------
+项目目录和源码
+--your project
+   |--dist(项目打包输出目录)
+       |--bundle.js(该文件是由webpack打包生成)
+       |--index.html　　
+   |--src
+       |--index.js
+   |--webpack
+       |--webpack.config.js
+   |--package.json
+
+
+
+---------------------------------------------------------------------
+190205
+---------------------------------------------------------------------
+
+
+...三目运算符报错
+--------
+原因：js es6写法，加载babel模块后需要修改 .babelrc文件
+
+
+
+
+---------------------------------------------------------------------
+190209
+---------------------------------------------------------------------
+
+
+环境配置完成、webpack 打包学习完成，开始项目的前段移植和开发
+
+plan A-1
+src/server/server.js  准备注释掉链接 steem 的许多代码，并在本地对前段进行开发和调试
+--------
+
+vscode 调试 nodejs 学习
+--------
+
+
+
+调试前置条件：launch.json配置
+--------
+例子+解释：
+    
+    "configurations": [
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Launch Program",
+            "program": "${workspaceFolder}/src/extract-cli.js",
+            "args": ["--output", "output.pot", "${workspaceFolder}/test/product_group.vm"],
+            "outDir": "${workspaceFolder}/dist",
+            "sourceMaps": true
+        }
+    ]
+
+-type和request不用改，默认就可以，request为launch时用F5直接可以启动调试，request为attach按照官网解释是关联到已经运行的一个程序，
+但是此处可以不管，我们就用vscode自带的调试器进行调试就好。
+
+-program这个参数是指定要运行的js入口文件，其中${workspaceFolder}为当前打开的项目目录，.vscode目录会自动生成在此目录下，
+launch.json也在此目录下
+
+-args也是个比较重要的，比如该例，我执行命令gettext-extract --output output.pot input.vm 那么args的作用其实就是传入命令后面的参数，
+每个空格之间要分开，写成args的某个子元素
+
+-sourceMaps对于编写es5代码来说这个参数没有什么卵用，但是对于写es6,TypeScript等就十分有必要了，这个参数的值为true时会利用编译过程生成的map
+来进行源码和编译后的代码进行对应，这样在源码打断点，就可以愉快的进行我们的调试了
+
+outDir是用来标注编译后代码的生成目录的，帮助vscode进行查找
+
+
+
+
+
+--------
+--------
+--------
+--------
+--------
