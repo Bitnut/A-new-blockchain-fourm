@@ -1,1 +1,0 @@
-{"version":3,"sources":["../../../src/shared/api_client/index.js"],"names":["module","exports","ChainConfig"],"mappings":";;AAAA;;;;;;AAEAA,OAAOC,OAAP,GAAiB;AACbC;AADa,CAAjB","file":"index.js","sourcesContent":["import ChainConfig from './ChainConfig';\n\nmodule.exports = {\n    ChainConfig,\n};\n"]}

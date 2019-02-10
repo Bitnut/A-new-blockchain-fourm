@@ -1,1 +1,0 @@
-{"version":3,"sources":["../../../../src/app/utils/__mocks__/GDPRUserList.js"],"names":[],"mappings":";;;;;kBAAe,CAAC,MAAD,C","file":"GDPRUserList.js","sourcesContent":["export default ['gdpr'];\n"]}
